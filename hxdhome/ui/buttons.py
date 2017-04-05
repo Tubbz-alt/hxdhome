@@ -104,9 +104,7 @@ class StandIndicator(pedl.StackedLayout):
         """
         Create indicator frame to notify when any motor in group is moving
         """
-        return pedl.Rectangle(fill=False,
-                               lineColor=ColorChoice.Yellow,
-                               w = w,
-                               h = h,
-                               vis_pv  = prefix + self.movement_pv,
-                               vis_min = 1)
+        return pedl.Rectangle(fill=False, w=w, h=h,
+                             lineColor=ColorChoice.Yellow,
+                             visibility=pedl.Visibility(pv=prefix+self.motion_pv,
+                                                        min=0))
