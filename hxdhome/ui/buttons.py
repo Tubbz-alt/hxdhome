@@ -73,7 +73,7 @@ class StandIndicator(pedl.StackedLayout):
             l = pedl.VBoxLayout(spacing=self.indicator_spacing)
             #Add each motor
             for mtr in column:
-                l.addWidget(self.create_indicator(mtr)
+                l.addWidget(self.create_indicator(mtr))
             #Add to overall layout
             lights.addLayout(l)
 
