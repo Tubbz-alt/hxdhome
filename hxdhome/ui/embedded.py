@@ -1,6 +1,3 @@
-"""
-Module Docstring
-"""
 ############
 # Standard #
 ############
@@ -12,27 +9,74 @@ import logging
 ###############
 import pedl
 import numpy as np
-from pedl.choices import ColorChoice, AlignmentChoice
+from pedl.choices          import ColorChoice, AlignmentChoice
 from pedl.widgets.embedded import Display
+
 ##########
 # Module #
 ##########
 
 logger = logging.getLogger(__name__)
 
-
 class EmbeddedControl(pedl.VBoxLayout):
+    """
+    Generic Large Embedded Window
 
-    device_spacing = 5
+    Simply contains an overhead title for the window, the remainder of the
+    layout should be filled by subclasses
+
+    Parameters
+    ----------
+    title : str
+        Desired titled of Layout
+
+    Attributes
+    ----------
+    header_height : int
+        Height of overhead title
+
+    header_color : :``pedl.ColorChoice``
+        Color of title
+
+    target_width : int
+        Width of the EmbeddedGroup Window
+    """
     header_height  = 25
+    header_color   = ColorChoice.Black
+    target_width   = 850
 
-    def __init__(self, group, spacing=10, w=850,
-                 theme=ColorChoice.Black):
+    def __init__(self, title):
+        super(EmbeddedControl, self).__init__(alignment=AlignmentChoice.Center)
+        self.title = title
+        self.addWidget(self.header)
+
+
+    def header(self):
+        """
+        Header for the window
+        """
+        return pedl.widgets.StaticText(w=self.target_width,
+                                       h=self.header_height,
+                                       text=self.title,
+                                       fontColor=ColorChoice.White,
+                                       fill=self.header_color, lineWidth=3)
+
+
+class EmbeddedGroup(EmbeddedControl):
+    """
+    An EmbeddedControl screen for an arbitrary group of screens
+    """
+    #TODO Add back button
+    device_spacing = 5
+    type_spacing   = 10
+
+    def __init__(self, group, **kwargs):
         #Configuration Notes
         self.group = group
-        self.theme = theme
 
-        super(EmbeddedControl, self).__init__(spacing=spacing, **kwargs)
+        super(EmbeddedGroup, self).__init__(title=self.group.name,
+                                            spacing=self.type_spacing,
+                                            **kwargs)
 
         #Iterate through Device Types
         for screen in self.embedded_types:
@@ -58,28 +102,20 @@ class EmbeddedControl(pedl.VBoxLayout):
 
             self.addLayout(l)
 
-        #Reinsert header
-        self.insertWidget(self.header, 0)
 
-
-    def create_header(self, width):
+    def embed_device(self, d):
         """
-        Create a header for the window
+        Create an embedded device
 
         Parameters
         ----------
-        width : int
-            Width of header
-
-        Returns
-        -------
-        header : ``pedl.StaticText``
-            Header matching theme of window
+        d : ``happi.Device``
+            Device to create embedded screen
         """
-        return pedl.widgets.StaticText(w=width, h=self.header_height,
-                                       text=group.name,
-                                       fontColor=ColorChoice.White,
-                                       fill=self.theme, lineWidth=3)
+        return EmbeddedWindow(displays=[Display(d.name,
+                                                d.embedded_screen,
+                                                d.macros)],
+                              autosize=True)
 
 
     @property
@@ -90,3 +126,13 @@ class EmbeddedControl(pedl.VBoxLayout):
         """
         screens = [d.embedded_screen for d in self.group]
         return list(sorted(set(screens), key=lambda s : screens.count(s)))
+
+
+class EmbeddedStand(EmbeddedControl):
+    """
+    An Embedded Control screen for a stand overview
+    """
+    def __init__(self, group):
+        super(EmbeddedStand, self).__init__(title=group.name)
+
+
