@@ -24,12 +24,26 @@ class HXDGroup(object):
     """
     Generic object grouping
 
+    Instead of passing around lists of ``happi`` objects, information is
+    combined together into sensible groups. Grouped objects don't need to be
+    the same type, instead the overall strategy is to sort objects by the stand
+    they belong to, and then, by using :attr:`.subgroups`, smaller device
+    groups.
+
+    Parameters
+    -----------
+    args : :class:`.happi.Device` or :class:`.HXDGroup`
+        Series of similar objects
+
+    name : str
+        Name for the grouping
+
     Attributes
     ----------
-    children
+    children : tuple
+        Stored devices and subgroups
     """
     def __init__(self, *args, name=None):
-        self._design  = pedl.Designer()
         self.name     = name
         self.children = args
 
@@ -45,7 +59,7 @@ class HXDGroup(object):
     @property
     def devices(self):
         """
-        All devices within group
+        All devices within the group, created by flattening :attr:`.subgroups`
         """
         devices = []
         for d in self.children:
@@ -64,6 +78,7 @@ class HXDGroup(object):
         All child groups
         """
         return [d for d in self.children if isinstance(d, HXDGroup)]
+
 
     @property
     def pv(self):
@@ -88,6 +103,3 @@ class HXDGroup(object):
 #        self.d.setLayout(self.layout)
 #        return d.show(**kwargs)
 #
-
-    def __iter__(self):
-        return iter(self.devices)    
