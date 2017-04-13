@@ -1,5 +1,7 @@
 """
-Represent a group of motors as a single pressbutton
+There are a few different types of indicators on the main panel to represent
+the state of different devices, as well as providing an array of clickable
+buttons to show advanced controls
 """
 ############
 # Standard #
