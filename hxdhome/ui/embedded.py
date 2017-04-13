@@ -1,3 +1,10 @@
+"""
+The main screen is composed of a few types of embedded windows, those for
+individual device groups, some for stands and others for sets of shell
+commands. At the most basic level, each has a large title at the top followed
+by content. A heirarchy was constructed with :class:`.EmbeddedControl` being
+the base to make creating and managing these windows easily. 
+"""
 ############
 # Standard #
 ############
@@ -7,8 +14,8 @@ import logging
 ###############
 # Third Party #
 ###############
-import pedl
 import numpy as np
+import pedl
 from pedl.choices          import ColorChoice, AlignmentChoice
 from pedl.widgets.embedded import Display
 
@@ -48,7 +55,11 @@ class EmbeddedControl(pedl.VBoxLayout):
     def __init__(self, title):
         super(EmbeddedControl, self).__init__(alignment=AlignmentChoice.Center)
         self.title = title
-        self.addWidget(self.header)
+        #Create a StackedLayout so title can be buttonized later
+        hd = pedl.StackedLayout()
+        hd.addWidget(self.header)
+        #Add to top of page
+        self.addLayout(hd)
 
 
     def header(self):
@@ -65,8 +76,29 @@ class EmbeddedControl(pedl.VBoxLayout):
 class EmbeddedGroup(EmbeddedControl):
     """
     An EmbeddedControl screen for an arbitrary group of screens
+
+    The display is created by introspecting the number of devices in the group,
+    and seeing how many required a similar embedded screen. The devices are
+    then sorted by this metric, and added to the layout using the information
+    on both the embedded screen and the accompanying macros found in ``happi``.
+
+    In order to determine the size and layout of the screen, the paths to each
+    embedded window must exist. Without this information, we can't determine
+    the proper way to align each devices controls.
+
+    Parameters
+    ----------
+    group : :class:`.HXDGroup`
+        Device group to draw in screen
+
+    Attributes
+    ----------
+    device_spacing : int
+        Space between devices of the same type in both directions
+
+    type_spacing : int
+        Space between devices of different types
     """
-    #TODO Add back button
     device_spacing = 5
     type_spacing   = 10
 
@@ -77,7 +109,6 @@ class EmbeddedGroup(EmbeddedControl):
         super(EmbeddedGroup, self).__init__(title=self.group.name,
                                             spacing=self.type_spacing,
                                             **kwargs)
-
         #Iterate through Device Types
         for screen in self.embedded_types:
 
@@ -92,7 +123,7 @@ class EmbeddedGroup(EmbeddedControl):
             device_layout = pedl.HBoxLayout(spacing=self.device_spacing)
 
             #Find widgets of this type
-            widgets = sorted([d for d in self.group if d.embedded_screen==d])
+            widgets = sorted([d for d in self.group.devices if d.embedded_screen==d])
 
             #Add each column of devices to device layout
             for column in np.array_split(widgets, cols):
@@ -111,6 +142,11 @@ class EmbeddedGroup(EmbeddedControl):
         ----------
         d : ``happi.Device``
             Device to create embedded screen
+
+        Returns
+        -------
+        emb : :class:`pedl.EmbeddedWindow`
+            Embedded display of happi device
         """
         return EmbeddedWindow(displays=[Display(d.name,
                                                 d.embedded_screen,
@@ -128,11 +164,12 @@ class EmbeddedGroup(EmbeddedControl):
         return list(sorted(set(screens), key=lambda s : screens.count(s)))
 
 
+
 class EmbeddedStand(EmbeddedControl):
     """
     An Embedded Control screen for a stand overview
     """
     def __init__(self, group):
+        self.group = group
         super(EmbeddedStand, self).__init__(title=group.name)
-
 
