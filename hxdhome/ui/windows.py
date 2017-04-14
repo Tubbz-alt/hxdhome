@@ -20,7 +20,6 @@ from pedl.widgets.embedded import Display
 ##########
 # Module #
 ##########
-from ..utils   import destroy_on_exit
 from .buttons  import StandIndicator, StandButton
 from .embedded import EmbeddedStand, EmbeddedGroup
 logger = logging.getLogger(__name__)
@@ -43,7 +42,6 @@ class HXRAYWindow(pedl.HBoxLayout):
     kwargs :
         Passed on to Layout configuration
     """
-    build_dir = ''
 
     def __init__(self, group, **kwargs):
         self.group  =  group
@@ -74,20 +72,16 @@ class HXRAYWindow(pedl.HBoxLayout):
         Returns
         -------
         proc : subprocess.Popen
-            Process containing EDM screen
+            Process launched by show
         """
         #Create temporary subdisplays
         tmp = self._show_displays()
         #Add main layout
         self.app.window.setLayout(self, resize=True)
-        #Create process
-        proc = self.app.exec_(wait=block)
-        #Destroying temp files on exit
-        destroy_on_exit(proc, tmp)
-        return proc
+        return self.app.exec_(wait=block)
 
 
-    def save(self, name=None):
+    def save(self, name=None, build_dir=''):
         """
         Save the window to file
 
@@ -105,15 +99,15 @@ class HXRAYWindow(pedl.HBoxLayout):
         if not prefix.endswith('.edl'):
             prefix += '.edl'
         #Create saved subdisplays
-        self._save_displays()
+        self._save_displays(build_dir=build_dir)
         #Set main layout
         self.app.window.setLayout(self, resize=True)
         #Save to disk
-        with open(os.path.join(self.build_dir, prefix), 'w+') as handle:
+        with open(os.path.join(build_dir, prefix), 'w+') as handle:
             self.app.dump(handle)
 
 
-    def _save_displays(self):
+    def _save_displays(self, build_dir=''):
         """
         Save displays to edl files
         """
@@ -123,7 +117,7 @@ class HXRAYWindow(pedl.HBoxLayout):
             self.app.window.setLayout(lay, resize=True)
 
             #Create filename
-            fname = os.path.join(self.build_dir,
+            fname = os.path.join(build_dir,
                                  self.group.alias+display.name)
 
             #Write to disk
@@ -181,18 +175,21 @@ class HXRAYHome(HXRAYWindow):
 
     horiz_spacing : int
         Distance between indicator columns
+    
+    window_size : tuple
+        Size of embedded window (w,h)
     """
     #Geometry settings
-    vert_spacing  = 120
+    vert_spacing  = 75
     horiz_spacing = 10
-    window_size   = (600, 1100)
+    window_size   = (600, 900)
 
     def __init__(self, hutch):
         #Initialize layout
         super(HXRAYHome, self).__init__(hutch, spacing=self.horiz_spacing)
 
         #Set Embedded window size
-        HXRAYStand.size = self.window_size
+        HXRAYStand.window_size = self.window_size
 
         #All displays not including embedded controls
         left_panels = pedl.VBoxLayout(spacing=self.vert_spacing,
@@ -281,16 +278,15 @@ class HXRAYHome(HXRAYWindow):
         return emb
 
 
-    def _save_displays(self):
+    def _save_displays(self, build_dir=''):
         """
         Reimplemented to save all child displays
         """
         #Create all subdisplays for stands
-        
-        list(map(lambda x : x._save_displays(),
+        list(map(lambda x : x._save_displays(build_dir=build_dir),
                  self.stands))
         #Create stand displays
-        super(HXRAYHome, self)._save_displays()
+        super(HXRAYHome, self)._save_displays(build_dir=build_dir)
 
 
     def _show_displays(self):
@@ -319,7 +315,8 @@ class HXRAYStand(HXRAYWindow):
     stand : :class:`.HXDGroup`
         Group with one layer of subgroups for devices 
     """
-    window_size = (1100, 850)
+    window_size = (600, 1100)
+
     def __init__(self, stand):
         super(HXRAYStand, self).__init__(stand)
         self.window = self.create_window()
@@ -341,7 +338,9 @@ class HXRAYStand(HXRAYWindow):
         """
         Overall display for stand
         """
-        return EmbeddedStand(self.group)
+        emb = EmbeddedStand(self.group, target_width=self.window_size[0])
+        MenuButton.buttonize(emb.widgets[0], controlPv=self.group.pv)
+        return emb
 
 
     @property
@@ -349,7 +348,10 @@ class HXRAYStand(HXRAYWindow):
         """
         Every subgroup display in the Widget
         """
-        emb = [EmbeddedGroup(group) for group in self.group.subgroups]
+        emb = [EmbeddedGroup(group, target_width=self.window_size[0])
+               for group in self.group.subgroups]
+
+        #Buttonize title
         for display in emb:
             MenuButton.buttonize(display.widgets[0], controlPv=self.group.pv)
 
