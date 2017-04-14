@@ -1,2 +1,2 @@
 from .embedded import EmbeddedGroup
-from .ui       import HXRAYHome, HXRAYStand
+from .windows  import HXRAYHome, HXRAYStand
