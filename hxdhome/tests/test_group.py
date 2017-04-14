@@ -15,7 +15,7 @@ from hxdhome import HXDGroup
 
 def test_alias():
     g = HXDGroup(name='DG2 TEST')
-    assert g.alias == 'dg2test'
+    assert g.alias == 'dg2_test'
 
 
 def test_device_handling():
@@ -33,4 +33,4 @@ def test_pv():
     sub_1  = HXDGroup(name='sub_1')
     sub_2  = HXDGroup(name='sub_2')
     main   = HXDGroup(sub_1, sub_2, name='main')
-    assert str(main.pv) == 'LOC\\main=e:0,sub_1,sub_2'
+    assert str(main.pv) == 'LOC\\\\main=e:2,sub_1,sub_2,overview'
