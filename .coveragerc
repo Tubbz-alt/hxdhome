@@ -1,0 +1,11 @@
+[run]
+source =
+    hxdhome 
+[report]
+omit =
+    #tests
+    */tests/*
+    *test*
+    #versioning
+    .*version.*
+    *_version.py
