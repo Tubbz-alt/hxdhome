@@ -15,15 +15,13 @@ from hxdhome.ui.embedded import EmbeddedControl, EmbeddedGroup
 
 def test_embedded_group(simul_device):
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    #For easy calculations
-    EmbeddedControl.target_width = 500
-
-    cntrl = EmbeddedGroup(simul_device)
+    
+    cntrl = EmbeddedGroup(simul_device, target_width=500)
 
     #Check title
     assert isinstance(cntrl.widgets[0], pedl.StackedLayout)
     assert cntrl.widgets[0].widgets[0].text == simul_device.name
-    assert cntrl.widgets[0].widgets[0].w    == 500
+    assert cntrl.widgets[0].widgets[0].w    == 500 - 2*cntrl.margin
 
     #Check types
     assert cntrl.embedded_types == list(map(lambda x:os.path.join(test_dir,x),
