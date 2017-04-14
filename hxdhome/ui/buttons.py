@@ -14,7 +14,7 @@ import logging
 import pedl
 import numpy as np
 from pedl.choices import ColorChoice, AlignmentChoice
-from pedl.widgets import StaticText, Circle, Rectangle, MenuButton
+from pedl.widgets import MessageButton, StaticText, Circle, Rectangle, MenuButton
 ##########
 # Module #
 ##########
@@ -52,9 +52,9 @@ class StandIndicator(pedl.StackedLayout):
         Suffix to add to each motor prefix to color surrounding motion
         indicator
     """
-    indicator_size    = 5
-    indicator_spacing = 2
-    max_col_height    = 6
+    indicator_size    = 8
+    indicator_spacing = 4
+    max_col_height    = 7
     frame_margin      = 4
     indicator_pv      = '.MSTA'
     motion_pv         = '.DMOV'
@@ -73,7 +73,8 @@ class StandIndicator(pedl.StackedLayout):
                    for i in range(0, len(motors), self.max_col_height)]
 
         #Create overall layout
-        lights = pedl.HBoxLayout(spacing=self.indicator_spacing)
+        lights = pedl.HBoxLayout(spacing=self.indicator_spacing,
+                                 alignment=AlignmentChoice.Bottom)
 
         for column in columns:
             #Create column layout
@@ -149,7 +150,7 @@ class StandButton(pedl.StackedLayout):
     frame_width : int
         Thickness of border surrounding rectangle
     """
-    stand_size  = (50, 20)
+    stand_size  = (80, 60)
     frame_width =  2
 
     def __init__(self, group):
@@ -157,7 +158,8 @@ class StandButton(pedl.StackedLayout):
         super(StandButton, self).__init__()
         #Add Rectangle
         self.addWidget(self.stand_symbol)
-
+        MessageButton.buttonize(self, controlPv=self.group.pv,
+                                value='overview')
 
     @property
     def stand_symbol(self):
