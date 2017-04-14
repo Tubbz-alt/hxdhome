@@ -53,7 +53,7 @@ class HXDGroup(object):
         """
         Cleaned name to use for programmatic use
         """
-        return self.name.replace(' ','').lower()
+        return self.name.replace(' ','_').lower()
 
 
     @property
@@ -88,18 +88,11 @@ class HXDGroup(object):
         if not self.subgroups:
             raise ValueError("Group has no subgroups to control") 
 
+        states = [g.alias for g in self.subgroups] + ['overview']
         #Create representative local PV
-        return LocalEnumPv(self.alias, states=[g.alias
-                                               for g in self.subgroups])
+        return LocalEnumPv(self.alias, states=states, value='overview')
 
-#    def window(self, dimensions=None):
-#        if not dimensions and self.parent:
-#            dimensions = self.parent.embedded_size
-#
-#        return GroupWindow(
-#
-#
-#    def show(self, **kwargs):
-#        self.d.setLayout(self.layout)
-#        return d.show(**kwargs)
-#
+
+    def __copy__(self):
+        return HXDGroup(*self.children, name=self.name)
+
