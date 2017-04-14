@@ -52,13 +52,13 @@ class StandIndicator(pedl.StackedLayout):
         Suffix to add to each motor prefix to color surrounding motion
         indicator
     """
-    indicator_size    = 8
+    indicator_size    = 10
     indicator_spacing = 4
     max_col_height    = 7
-    frame_margin      = 4
+    frame_margin      = 6
     indicator_pv      = '.MSTA'
     motion_pv         = '.DMOV'
-
+    frame_width       = 5
     def __init__(self, group):
         #Save groups
         self.group = group
@@ -86,7 +86,7 @@ class StandIndicator(pedl.StackedLayout):
             lights.addLayout(l)
 
         #Find proper frame dimension
-        w, h = [d + self.frame_margin for d in (lights.w, lights.h)]
+        w, h = [d + 2*self.frame_margin for d in (lights.w, lights.h)]
 
         #Add each frame
         for mtr in motors:
@@ -115,6 +115,7 @@ class StandIndicator(pedl.StackedLayout):
         return Circle(w = self.indicator_size,
                       h = self.indicator_size,
                       fill = ColorChoice.Green,
+                      lineWidth = 2,
                       alarmPV = mtr.prefix + self.indicator_pv,
                       alarm   = True)
 
@@ -126,6 +127,7 @@ class StandIndicator(pedl.StackedLayout):
         #Visibility Rules
         vis = pedl.Visibility(pv= mtr.prefix + self.motion_pv, min=0)
         return Rectangle(fill=False, w=w, h=h,
+                         lineWidth=self.frame_width,
                          lineColor=ColorChoice.Yellow,
                          visibility=vis)
 
@@ -150,7 +152,7 @@ class StandButton(pedl.StackedLayout):
     frame_width : int
         Thickness of border surrounding rectangle
     """
-    stand_size  = (80, 60)
+    stand_size  = (60, 40)
     frame_width =  2
 
     def __init__(self, group):
