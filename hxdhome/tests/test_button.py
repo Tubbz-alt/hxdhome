@@ -18,10 +18,11 @@ from hxdhome.ui.buttons import StandIndicator, StandButton
 
 
 def test_stand_button():
-    group = HXDGroup(name='DG2')
+    sub = HXDGroup(name='sub')
+    group = HXDGroup(sub, name='DG2')
     button = StandButton(group)
     assert button.stand_symbol.text == 'DG2'
-    assert len(button.widgets) == 1
+    assert len(button.widgets) == 2
 
 
 def test_stand_indicator():
