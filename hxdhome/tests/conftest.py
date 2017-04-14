@@ -14,7 +14,8 @@ from happi import Device
 ##########
 # Module #
 ##########
-from hxdhome import HXDGroup
+from hxdhome    import HXDGroup
+from hxdhome.ui import HXRAYHome
 
 #Use this until Python 2.x has tempdir
 @pytest.fixture(scope='function')
@@ -80,3 +81,8 @@ def simul_hutch(simul_stand):
     return HXDGroup(stand_1, stand_2, stand_3, stand_4,
                     stand_5, stand_6, stand_7, stand_8,
                     name='TST')
+
+
+class ExampleHutchWindow(HXRAYHome):
+    def __init__(self):
+        super(ExampleHutchWindow, self).__init__(simul_hutch(simul_stand(simul_device())))
