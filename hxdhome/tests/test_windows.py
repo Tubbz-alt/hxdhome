@@ -15,24 +15,10 @@ import pytest
 # Module #
 ##########
 from hxdhome.ui.windows import HXRAYWindow, HXRAYHome, HXRAYStand
-from hxdhome.utils import destroy_on_exit
 
 requires_edm = pytest.mark.skipif(find_executable('edm') == None,
                                   reason='EDM not found in current'\
                                          ' environment')
-
-
-def test_destroy_on_exit(simul_stand):
-    stnd  = HXRAYStand(simul_stand)
-    cntxt = stnd._show_displays()
-    proc = subprocess.Popen('ls',stdout=subprocess.PIPE)
-    assert all([os.path.exists(tmp.name) for tmp in cntxt])
-    destroy_on_exit(proc, cntxt)
-    #Wait for proc to complete in thread
-    time.sleep(0.5)
-    assert all([not os.path.exists(tmp.name) for tmp in cntxt])
-
-
 @requires_edm
 def test_show(simul_stand):
     stnd = HXRAYStand(simul_stand)
@@ -46,10 +32,9 @@ def test_show(simul_stand):
 
 
 def test_save(simul_stand, temp_dir):
-    HXRAYWindow.build_dir = temp_dir
     #Make stand
     stnd = HXRAYStand(simul_stand)
-    stnd.save()
+    stnd.save(build_dir=temp_dir)
     #Check all paths
     assert all([os.path.exists(os.path.join(temp_dir,
                                             simul_stand.alias+g.alias+'.edl'))
@@ -77,9 +62,8 @@ def test_hxrayhome_show_displays(simul_hutch, simul_stand):
 
 
 def test_hxrayhome_save_displays(simul_hutch, temp_dir):
-    HXRAYHome.build_dir = temp_dir
     hutch = HXRAYHome(simul_hutch)
-    hutch._save_displays()
+    hutch._save_displays(build_dir=temp_dir)
     subprocess.Popen(['ls',temp_dir])
     for stand in hutch.group.subgroups:
         assert os.path.exists(os.path.join(temp_dir,
