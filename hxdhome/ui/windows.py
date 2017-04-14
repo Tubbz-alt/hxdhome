@@ -83,7 +83,7 @@ class HXRAYWindow(pedl.HBoxLayout):
         #Create process
         proc = self.app.exec_(wait=block)
         #Destroying temp files on exit
-        destroy_on_exit(proc,tmp)
+        destroy_on_exit(proc, tmp)
         return proc
 
 
@@ -183,9 +183,9 @@ class HXRAYHome(HXRAYWindow):
         Distance between indicator columns
     """
     #Geometry settings
-    vert_spacing  = 25
+    vert_spacing  = 120
     horiz_spacing = 10
-    window_size   = (850, 1100)
+    window_size   = (600, 1100)
 
     def __init__(self, hutch):
         #Initialize layout
@@ -198,7 +198,8 @@ class HXRAYHome(HXRAYWindow):
         left_panels = pedl.VBoxLayout(spacing=self.vert_spacing,
                                       alignment=AlignmentChoice.Center)
 
-        indicators = pedl.HBoxLayout(spacing=self.horiz_spacing)
+        indicators = pedl.HBoxLayout(spacing=self.horiz_spacing,
+                                     alignment=AlignmentChoice.Center)
         #Add all stand indicators and buttons
         for stand in self.group.subgroups:
             indicators.addLayout(self.create_stand_buttons(stand))
