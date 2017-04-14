@@ -3,7 +3,7 @@ The main screen is composed of a few types of embedded windows, those for
 individual device groups, some for stands and others for sets of shell
 commands. At the most basic level, each has a large title at the top followed
 by content. A heirarchy was constructed with :class:`.EmbeddedControl` being
-the base to make creating and managing these windows easily. 
+the base to make creating and managing these windows easily.
 """
 ############
 # Standard #
@@ -18,7 +18,7 @@ import numpy as np
 import pedl
 from pedl.choices          import ColorChoice, AlignmentChoice
 from pedl.widgets.embedded import Display
-
+from pedl.widgets import EmbeddedWindow
 ##########
 # Module #
 ##########
@@ -37,6 +37,9 @@ class EmbeddedControl(pedl.VBoxLayout):
     title : str
         Desired titled of Layout
 
+    kwargs :
+        Passed to :class:`pedl.VBoxLayout`
+
     Attributes
     ----------
     header_height : int
@@ -48,12 +51,13 @@ class EmbeddedControl(pedl.VBoxLayout):
     target_width : int
         Width of the EmbeddedGroup Window
     """
-    header_height  = 25
+    header_height  = 50
     header_color   = ColorChoice.Black
     target_width   = 850
 
-    def __init__(self, title):
-        super(EmbeddedControl, self).__init__(alignment=AlignmentChoice.Center)
+    def __init__(self, title, **kwargs):
+        super(EmbeddedControl, self).__init__(alignment=AlignmentChoice.Center,
+                                              **kwargs)
         self.title = title
         #Create a StackedLayout so title can be buttonized later
         hd = pedl.StackedLayout()
@@ -62,6 +66,7 @@ class EmbeddedControl(pedl.VBoxLayout):
         self.addLayout(hd)
 
 
+    @property
     def header(self):
         """
         Header for the window
@@ -69,8 +74,17 @@ class EmbeddedControl(pedl.VBoxLayout):
         return pedl.widgets.StaticText(w=self.target_width,
                                        h=self.header_height,
                                        text=self.title,
+                                       font=pedl.Font(size=24, bold=True),
                                        fontColor=ColorChoice.White,
                                        fill=self.header_color, lineWidth=3)
+
+
+    @property
+    def filename(self):
+        """
+        Filename of EDM file based on title
+        """
+        return self.title.replace(' ','_').lower()+'.edl'
 
 
 class EmbeddedGroup(EmbeddedControl):
@@ -113,25 +127,30 @@ class EmbeddedGroup(EmbeddedControl):
         for screen in self.embedded_types:
 
             #Find size of embedded window
-            (screen_w, screen_h) = pedl.utils.find_screen_size(screen)
+            with open(screen, 'r') as handle:
+                (screen_w, screen_h) = pedl.utils.find_screen_size(handle)
 
             #Find proper number of columns
-            cols = max((w + self.device_spacing)
+            cols = max((self.target_width + self.device_spacing)
                      //(screen_w + self.device_spacing),1)
 
             #Initialize device layout
             device_layout = pedl.HBoxLayout(spacing=self.device_spacing)
 
             #Find widgets of this type
-            widgets = sorted([d for d in self.group.devices if d.embedded_screen==d])
+            widgets = sorted([d for d in self.group.devices
+                              if d.embedded_screen==screen],
+                              key=lambda d : d.name)
 
             #Add each column of devices to device layout
             for column in np.array_split(widgets, cols):
-                l = pedl.VBoxLayout(spacing=self.device_spacing)
-                list(map(l.addWidget(self.embed_device(d)) for d in column))
-                device_layout.addLayout(l)
+                #Don't add empty columns
+                if any(column):
+                    l = pedl.VBoxLayout(spacing=self.device_spacing)
+                    list(map(lambda d : l.addWidget(self.embed_device(d)), column))
+                    device_layout.addLayout(l)
 
-            self.addLayout(l)
+            self.addLayout(device_layout)
 
 
     def embed_device(self, d):
@@ -151,7 +170,7 @@ class EmbeddedGroup(EmbeddedControl):
         return EmbeddedWindow(displays=[Display(d.name,
                                                 d.embedded_screen,
                                                 d.macros)],
-                              autosize=True)
+                              name=d.name, autosize=True)
 
 
     @property
@@ -160,7 +179,7 @@ class EmbeddedGroup(EmbeddedControl):
         Types of embedded windows to be drawn in control screen, sorted by the
         total number of instance of screen within the given :attr:`.group`
         """
-        screens = [d.embedded_screen for d in self.group]
+        screens = [d.embedded_screen for d in self.group.devices]
         return list(sorted(set(screens), key=lambda s : screens.count(s)))
 
 
@@ -173,3 +192,9 @@ class EmbeddedStand(EmbeddedControl):
         self.group = group
         super(EmbeddedStand, self).__init__(title=group.name)
 
+    @property
+    def filename(self):
+        """
+        Suggested base filename
+        """
+        return 'overview.edl'
