@@ -53,12 +53,13 @@ class EmbeddedControl(pedl.VBoxLayout):
     """
     header_height  = 50
     header_color   = ColorChoice.Black
-    target_width   = 850
-
-    def __init__(self, title, **kwargs):
+    margin         = 15
+    def __init__(self, title, target_width=850, **kwargs):
         super(EmbeddedControl, self).__init__(alignment=AlignmentChoice.Center,
                                               **kwargs)
+        #Title Shape
         self.title = title
+        self.target_width = target_width
         #Create a StackedLayout so title can be buttonized later
         hd = pedl.StackedLayout()
         hd.addWidget(self.header)
@@ -71,7 +72,7 @@ class EmbeddedControl(pedl.VBoxLayout):
         """
         Header for the window
         """
-        return pedl.widgets.StaticText(w=self.target_width,
+        return pedl.widgets.StaticText(w=self.target_width - 2*self.margin,
                                        h=self.header_height,
                                        text=self.title,
                                        font=pedl.Font(size=24, bold=True),
@@ -188,9 +189,9 @@ class EmbeddedStand(EmbeddedControl):
     """
     An Embedded Control screen for a stand overview
     """
-    def __init__(self, group):
+    def __init__(self, group, **kwargs):
         self.group = group
-        super(EmbeddedStand, self).__init__(title=group.name)
+        super(EmbeddedStand, self).__init__(title=group.name, **kwargs)
 
     @property
     def filename(self):
