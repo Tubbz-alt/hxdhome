@@ -4,6 +4,7 @@
 import copy
 import os.path
 import shutil
+from distutils.spawn import find_executable
 ###############
 # Third Party #
 ###############
@@ -17,7 +18,6 @@ from happi import Device
 from hxdhome    import HXDGroup
 from hxdhome.ui import HXRAYHome
 
-#Use this until Python 2.x has tempdir
 @pytest.fixture(scope='function')
 def temp_dir():
     #Make temporary directory by hand until Python 3.x
@@ -27,6 +27,9 @@ def temp_dir():
     #Cleanup
     shutil.rmtree(tmp_dir)
 
+requires_edm = pytest.mark.skipif(find_executable('edm') == None,
+                                  reason='EDM not found in current'\
+                                         ' environment')
 
 @pytest.fixture(scope='module')
 def simul_device():

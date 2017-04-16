@@ -5,7 +5,6 @@ import os
 import time
 import os.path
 import subprocess
-from distutils.spawn import find_executable
 ###############
 # Third Party #
 ###############
@@ -15,10 +14,8 @@ import pytest
 # Module #
 ##########
 from hxdhome.ui.windows import HXRAYWindow, HXRAYHome, HXRAYStand
+from .conftest import requires_edm
 
-requires_edm = pytest.mark.skipif(find_executable('edm') == None,
-                                  reason='EDM not found in current'\
-                                         ' environment')
 @requires_edm
 def test_show(simul_stand):
     stnd = HXRAYStand(simul_stand)
