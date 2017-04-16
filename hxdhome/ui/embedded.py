@@ -18,10 +18,12 @@ import numpy as np
 import pedl
 from pedl.choices          import ColorChoice, AlignmentChoice
 from pedl.widgets.embedded import Display
-from pedl.widgets import EmbeddedWindow
+from pedl.widgets          import MessageButton, EmbeddedWindow
+
 ##########
 # Module #
 ##########
+from ..utils import columnize, columns_per_page
 
 logger = logging.getLogger(__name__)
 
@@ -132,9 +134,9 @@ class EmbeddedGroup(EmbeddedControl):
                 (screen_w, screen_h) = pedl.utils.find_screen_size(handle)
 
             #Find proper number of columns
-            cols = max((self.target_width + self.device_spacing)
-                     //(screen_w + self.device_spacing),1)
-
+            cols = columns_per_page(self.target_width,
+                                   screen_w,
+                                   self.device_spacing)
             #Initialize device layout
             device_layout = pedl.HBoxLayout(spacing=self.device_spacing)
 
@@ -189,9 +191,30 @@ class EmbeddedStand(EmbeddedControl):
     """
     An Embedded Control screen for a stand overview
     """
+    device_button_size = (100, 20)
+    type_spacing   = 30
+    button_spacing = 5
     def __init__(self, group, **kwargs):
         self.group = group
-        super(EmbeddedStand, self).__init__(title=group.name, **kwargs)
+        #Initial initialization
+        super(EmbeddedStand, self).__init__(title=group.name,
+                                            spacing=self.type_spacing,
+                                            **kwargs)
+        #Find number of columns of buttons
+        col_num = columns_per_page(self.target_width,
+                                   self.device_button_size[0],
+                                   self.button_spacing)
+        #Assemble button layout
+        button_layout = pedl.VBoxLayout(spacing=self.button_spacing)
+        #Add each row of buttons
+        for column in columnize(self.device_buttons, col_num):
+            h = pedl.HBoxLayout(spacing=self.button_spacing)
+            list(map(lambda b : h.addWidget(b), column))
+            button_layout.addLayout(h)
+
+        #Add buttons
+        self.addLayout(button_layout)
+
 
     @property
     def filename(self):
@@ -199,3 +222,18 @@ class EmbeddedStand(EmbeddedControl):
         Suggested base filename
         """
         return 'overview.edl'
+
+
+    @property
+    def device_buttons(self):
+        """
+        List of all child device buttons
+        """
+        return [MessageButton(controlPv=self.group.pv,
+                              value=device.alias,
+                              label=device.name,
+                              w=self.device_button_size[0],
+                              h=self.device_button_size[1],
+                              font=pedl.Font(size=12, bold=True),
+                              fill=ColorChoice.White)
+                for device in self.group.subgroups]
