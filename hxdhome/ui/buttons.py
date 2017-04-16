@@ -18,6 +18,7 @@ from pedl.widgets import MessageButton, StaticText, Circle, Rectangle, MenuButto
 ##########
 # Module #
 ##########
+from ..utils import columnize
 
 logger = logging.getLogger(__name__)
 
@@ -68,15 +69,11 @@ class StandIndicator(pedl.StackedLayout):
         #Grab motors
         motors = [d for d in self.group.devices if 'MMS' in d.prefix]
 
-        #Split motors into columns
-        columns = [motors[i:i+self.max_col_height]
-                   for i in range(0, len(motors), self.max_col_height)]
-
         #Create overall layout
         lights = pedl.HBoxLayout(spacing=self.indicator_spacing,
                                  alignment=AlignmentChoice.Bottom)
 
-        for column in columns:
+        for column in columnize(motors, self.max_col_height):
             #Create column layout
             l = pedl.VBoxLayout(spacing=self.indicator_spacing)
             #Add each motor
