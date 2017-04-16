@@ -75,11 +75,14 @@ class HXRAYWindow(pedl.HBoxLayout):
             Process launched by show
         """
         #Create temporary subdisplays
-        tmp = self._show_displays()
+        subtmp = self._show_displays()
         #Add main layout
         self.app.window.setLayout(self, resize=True)
-        return self.app.exec_(wait=block)
-
+        proc = self.app.exec_(wait=block)
+        #Add spawned processes to app to be cleaned at exit
+        for tmp in subtmp:
+            self.app.processes.append((tmp, proc))
+        return proc
 
     def save(self, name=None, build_dir=''):
         """
@@ -138,7 +141,8 @@ class HXRAYWindow(pedl.HBoxLayout):
             #Set window as main Designer layout
             self.app.window.setLayout(lay, resize=True)
             #Create temporary file
-            tmp = tempfile.NamedTemporaryFile(mode='w+', suffix='.edl')
+            tmp = tempfile.NamedTemporaryFile(mode='w+', suffix='.edl',
+                                              delete=False)
             #Save name and add to context to be destroyed later
             display.path = tmp.name
             context.append(tmp)
