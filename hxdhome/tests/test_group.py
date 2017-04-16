@@ -10,8 +10,8 @@ from happi import Device
 ##########
 # Module #
 ##########
-from hxdhome import HXDGroup
-
+from hxdhome   import HXDGroup
+from .conftest import requires_edm
 
 def test_alias():
     g = HXDGroup(name='DG2 TEST')
@@ -34,3 +34,13 @@ def test_pv():
     sub_2  = HXDGroup(name='sub_2')
     main   = HXDGroup(sub_1, sub_2, name='main')
     assert str(main.pv) == 'LOC\\\\main=e:2,sub_1,sub_2,overview'
+
+
+@requires_edm
+def test_group_show(simul_stand):
+    proc = simul_stand()
+    assert not proc.poll()
+    proc.terminate()
+    proc = simul_stand.show(split=False)
+    assert not proc.poll()
+    proc.terminate()
