@@ -15,8 +15,8 @@ from happi import Device
 ##########
 # Module #
 ##########
-from hxdhome    import HXDGroup
 from hxdhome.ui import HXRAYHome
+from hxdhome    import HutchGroup, HXDGroup
 
 @pytest.fixture(scope='function')
 def temp_dir():
@@ -81,7 +81,7 @@ def simul_hutch(simul_stand):
     stand_7.name = 'SC3'
     stand_8 = copy.copy(simul_stand)
     stand_8.name = 'DG4'
-    return HXDGroup(stand_1, stand_2, stand_3, stand_4,
+    return HutchGroup(stand_1, stand_2, stand_3, stand_4,
                     stand_5, stand_6, stand_7, stand_8,
                     name='TST')
 
