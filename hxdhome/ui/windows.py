@@ -384,3 +384,41 @@ class HXRAYStand(HXRAYWindow):
         emb.w, emb.h  = self.window_size
 
         return emb
+
+
+class HXRAYDeviceWindow(HXRAYWindow):
+    """
+    Simple screen with all devices shown on one tab
+
+    Parameters
+    ----------
+    group : :class:`.HXDGroup`
+        Group of devices to show in window
+    """
+    window_size = (600, 900)
+
+    def __init__(self, group):
+        super(HXRAYDeviceWindow, self).__init__(group)
+        self.addLayout(self.embedded_layout)
+
+
+    @property
+    def embedded_layout(self):
+        """
+        EmbeddedGroup layout 
+        """
+        return EmbeddedGroup(self.group, target_width=self.window_size[0])
+
+
+    def _save_displays(self):
+        """
+        Reimplemented to save no subdisplays
+        """
+        pass
+
+
+    def _show_displays(self):
+        """
+        Reimplemented to save no subdisplays
+        """
+        return list()
