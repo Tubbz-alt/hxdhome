@@ -10,8 +10,9 @@ from happi import Device
 ##########
 # Module #
 ##########
-from hxdhome   import HXDGroup
-from .conftest import requires_edm
+from hxdhome    import HXDGroup
+from hxdhome.ui import HXRAYHome, HXRAYStand, HXRAYDeviceWindow
+from .conftest  import requires_edm
 
 def test_alias():
     g = HXDGroup(name='DG2 TEST')
@@ -35,6 +36,15 @@ def test_pv():
     main   = HXDGroup(sub_1, sub_2, name='main')
     assert str(main.pv) == 'LOC\\\\main=e:2,sub_1,sub_2,overview'
 
+def test_group_create_screen(simul_stand):
+    screen = simul_stand.create_screen(split=False)
+    assert isinstance(screen, HXRAYStand)
+    screen = simul_stand.create_screen(split=True)
+    assert isinstance(screen, HXRAYDeviceWindow)
+
+def test_hutch_create_screen(simul_hutch):
+    screen = simul_hutch.create_screen(split=False)
+    assert isinstance(screen, HXRAYHome)
 
 @requires_edm
 def test_group_show(simul_stand):
