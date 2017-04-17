@@ -1,2 +1,1 @@
-from .embedded import EmbeddedGroup
-from .windows  import HXRAYHome, HXRAYStand
+from .windows  import HXRAYDeviceWindow, HXRAYHome, HXRAYStand
