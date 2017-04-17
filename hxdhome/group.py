@@ -15,8 +15,7 @@ from   pedl.utils import LocalPv, LocalEnumPv
 ##########
 # Module #
 ##########
-from .ui          import HXRAYStand
-from .ui.embedded import EmbeddedControl
+from .ui import HXRAYHome, HXRAYDeviceWindow, HXRAYStand
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +93,29 @@ class HXDGroup(object):
         return LocalEnumPv(self.alias, states=states, value='overview')
 
 
+    def create_screen(self, split=True):
+        """
+        Create an EDM screen for the group
+
+        Parameters
+        ----------
+        split : bool, optional
+            Choice to show subgroups on separate screens. If there are no
+            subgroups this is irrelevant
+
+        Returns
+        --------
+        screen : :class:`.HXRAYStand` or :class:`.HXRAYDeviceWindow`
+            Either a group of embedded windows split by group or a single page
+            with all the child devices
+        """
+        if split or not self.subgroups:
+            return HXRAYDeviceWindow(self)
+
+        else:
+            return HXRAYStand(self)
+
+
     def show(self, split=True, block=False):
         """
         Show the EDM screen for the group
@@ -112,16 +134,7 @@ class HXDGroup(object):
         proc : subprocess.Popen
             Process that contains EDM process
         """
-        if split or not self.subgroups:
-            #Not ideal we have to do all this instantiation
-            edm = EmbeddedControl(self.devices)
-            app = pedl.Designer()
-            app.window.setLayout(edm, resize=True)
-            return app.exec_(wait=block)
-
-        else:
-            edm = HXRAYStand(self)
-            return edm.show(block=block)
+        return self.create_screen(split=split).show(block=block)
 
 
     def __call__(self):
@@ -141,3 +154,18 @@ class HXDGroup(object):
         """
         return HXDGroup(*self.children, name=self.name)
 
+
+class HutchGroup(HXDGroup):
+    """
+    Reimplementation of HXDGroup for entire hutch
+    """
+    def create_screen(self, **kwargs):
+        """
+        Create an EDM screen for the hutch
+
+        Returns
+        --------
+        screen : :class:`.HXRAYHome`
+            Home screen for hutch
+        """
+        return HXRAYHome(self)
