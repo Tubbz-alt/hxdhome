@@ -47,6 +47,9 @@ class HXDGroup(object):
         self.name     = name
         self.children = args
 
+        #Add subgroups as attributes
+        for group in self.subgroups:
+            setattr(self, group.alias, group)
 
     @property
     def alias(self):
@@ -109,11 +112,11 @@ class HXDGroup(object):
             Either a group of embedded windows split by group or a single page
             with all the child devices
         """
-        if split or not self.subgroups:
+        if not split or not self.subgroups:
             return HXRAYDeviceWindow(self)
-
         else:
             return HXRAYStand(self)
+
 
 
     def show(self, split=True, block=False):
@@ -154,8 +157,7 @@ class HXDGroup(object):
         """
         return HXDGroup(*self.children, name=self.name)
 
-
-class HutchGroup(HXDGroup):
+class HXDHutch(HXDGroup):
     """
     Reimplementation of HXDGroup for entire hutch
     """
