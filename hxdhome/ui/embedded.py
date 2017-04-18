@@ -191,7 +191,7 @@ class EmbeddedStand(EmbeddedControl):
     """
     An Embedded Control screen for a stand overview
     """
-    device_button_size = (100, 20)
+    device_button_size = (120, 20)
     type_spacing   = 30
     button_spacing = 5
     def __init__(self, group, **kwargs):
