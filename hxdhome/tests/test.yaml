@@ -1,0 +1,21 @@
+#####################
+#BASIC HXDHOME YAML #
+#####################
+hutch : tst
+
+###########################
+#Path to static EDL files #
+###########################
+static_dir : /path/static/
+
+######################
+#Filters for devices #
+######################
+filters:
+    include:
+        system    : vacuum  
+        beamline  : TST
+
+    exclude:
+        stand : DIA 
+
