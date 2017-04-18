@@ -149,7 +149,7 @@ class StandButton(pedl.StackedLayout):
     frame_width : int
         Thickness of border surrounding rectangle
     """
-    stand_size  = (60, 40)
+    stand_size  = (80, 60)
     frame_width =  2
 
     def __init__(self, group):
