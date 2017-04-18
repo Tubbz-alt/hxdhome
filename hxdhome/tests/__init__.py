@@ -1,1 +1,1 @@
-from .conftest import ExampleHutchWindow, simul_device, simul_stand, simul_hutch
+from .conftest import ExampleHutchWindow, ExampleConfig
