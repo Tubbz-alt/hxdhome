@@ -38,13 +38,27 @@ def test_pv():
 
 def test_group_create_screen(simul_stand):
     screen = simul_stand.create_screen(split=False)
-    assert isinstance(screen, HXRAYStand)
-    screen = simul_stand.create_screen(split=True)
     assert isinstance(screen, HXRAYDeviceWindow)
+    screen = simul_stand.create_screen(split=True)
+    assert isinstance(screen, HXRAYStand)
 
 def test_hutch_create_screen(simul_hutch):
     screen = simul_hutch.create_screen(split=False)
     assert isinstance(screen, HXRAYHome)
+
+def test_device_recursion():
+    bot_d  = Device(name='bot_device')
+    low_d  = Device(name='low_device')
+    sub_d  = Device(name='sub_device')
+    main_d = Device(name='main_device')
+    bot  = HXDGroup(bot_d,       name='bottom')
+    low  = HXDGroup(low_d, bot,  name='low')
+    sub  = HXDGroup(sub_d, low,  name='sub')
+    main = HXDGroup(main_d, sub, name='main')
+    assert bot_d in main.devices
+    assert low_d in main.devices
+    assert sub_d in main.devices
+
 
 @requires_edm
 def test_group_show(simul_stand):
