@@ -53,7 +53,7 @@ class StandIndicator(pedl.StackedLayout):
         Suffix to add to each motor prefix to color surrounding motion
         indicator
     """
-    indicator_size    = 10
+    indicator_size    = 8
     indicator_spacing = 4
     max_col_height    = 7
     frame_margin      = 6
