@@ -21,7 +21,7 @@ from pedl.widgets.embedded import Display
 # Module #
 ##########
 from .buttons  import StandIndicator, StandButton
-from .embedded import EmbeddedStand, EmbeddedGroup
+from .embedded import EmbeddedControl, EmbeddedStand, EmbeddedGroup
 logger = logging.getLogger(__name__)
 
 class HXRAYWindow(pedl.HBoxLayout):
@@ -180,11 +180,16 @@ class HXRAYHome(HXRAYWindow):
     horiz_spacing : int
         Distance between indicator columns
     
+    panel_spacing : int
+        Distance between indicator lights and tabbed panels
+    
     window_size : tuple
         Size of embedded window (w,h)
+
     """
     #Geometry settings
     vert_spacing  = 75
+    panel_spacing = 25
     horiz_spacing = 10
     window_size   = (600, 900)
 
@@ -196,7 +201,7 @@ class HXRAYHome(HXRAYWindow):
         HXRAYStand.window_size = self.window_size
 
         #All displays not including embedded controls
-        left_panels = pedl.VBoxLayout(spacing=self.vert_spacing,
+        left_panels = pedl.VBoxLayout(spacing=self.panel_spacing,
                                       alignment=AlignmentChoice.Center)
 
         indicators = pedl.HBoxLayout(spacing=self.horiz_spacing,
@@ -207,7 +212,9 @@ class HXRAYHome(HXRAYWindow):
 
         #Create left panel layout
         left_panels.addLayout(indicators)
-        #left_panels.addLayout(ControlTab)
+        #Tabbed Widget
+        left_panels.addLayout(EmbeddedControl('Hutch Control',
+                                              target_width=indicators.w))
         self.addLayout(left_panels)
 
         #Create EmbeddedControls
