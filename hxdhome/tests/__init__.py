@@ -1,1 +1,1 @@
-from .conftest import ExampleHutchWindow, ExampleConfig
+from .conftest import ExampleHutchWindow, ExampleDB, ExampleConfig

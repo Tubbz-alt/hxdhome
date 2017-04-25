@@ -5,6 +5,7 @@ import copy
 import os.path
 import shutil
 from distutils.spawn import find_executable
+from functools import partial
 ###############
 # Third Party #
 ###############
@@ -99,6 +100,23 @@ def simul_hutch(simul_stand):
     stands = [create_stand(n, p) for n,p in stand_tuples]
     return HXDHutch(*stands, name='TST')
 
+@pytest.fixture(scope='module')
+def happiDB(simul_hutch):
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    client   = happi.tests.MockClient()
+    #Fill database
+    for device in simul_hutch.devices:
+        client.add_device(device)
+    #Add a parent device to be added to group
+    client.add_device(Device(name='Child', prefix='Tst:MMS',
+                             parent='DG4 Device Three', stand='DG4', beamline='TST',
+                             embedded_screen=os.path.join(test_dir,'small.edl')))
+    return client
+
+
+##############
+# DEMO TOOLS #
+##############
 
 def load_example_hutch():
     stand = simul_stand(simul_device())
@@ -114,15 +132,5 @@ class ExampleConfig(ConfigReader):
         super(ExampleConfig,self).__init__(happiDB(load_example_hutch()),
                                            **kwargs)
 
-@pytest.fixture(scope='module')
-def happiDB(simul_hutch):
-    test_dir = os.path.dirname(os.path.abspath(__file__))
-    client   = happi.tests.MockClient()
-    #Fill database
-    for device in simul_hutch.devices:
-        client.add_device(device)
-    #Add a parent device to be added to group
-    client.add_device(Device(name='Child', prefix='Tst:MMS',
-                             parent='DG4 Device Three', stand='DG4', beamline='TST',
-                             embedded_screen=os.path.join(test_dir,'small.edl')))
-    return client
+ExampleDB = partial(happiDB,load_example_hutch())
+
